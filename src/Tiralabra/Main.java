@@ -15,7 +15,7 @@ public class Main extends JFrame
     {
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
 	setResizable(true);
-	setTitle("A-star reitinhaku");
+	setTitle("A-star pathfinding");
 	init();
 	setSize(paneeli.image.getWidth() + 15, paneeli.image.getHeight() + 80);
 	setVisible(true);

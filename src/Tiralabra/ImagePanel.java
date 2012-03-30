@@ -3,9 +3,7 @@ package Tiralabra;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.DirectColorModel;
-import java.awt.image.RGBImageFilter;
+import java.awt.image.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,8 +49,8 @@ public class ImagePanel extends JPanel implements MouseListener
 	height = image.getHeight();
 	addMouseListener(this);
 	setVisible(true);
-	this.bakup = this.image;
-	this.bakup2 = this.image;
+	this.bakup = this.deepCopy(this.image);
+	//this.bakup2 = this.image;
     }
 
     @Override
@@ -88,15 +86,15 @@ public class ImagePanel extends JPanel implements MouseListener
 
     public boolean isValid(int x, int y)
     {
-	if (x < 0 || x > bakup.getWidth() - 1)
+	if (x < 0 || x > image.getWidth() - 1)
 	{
 	    return false;
 	}
-	if (y < 0 || y > bakup.getHeight() - 1)
+	if (y < 0 || y > image.getHeight() - 1)
 	{
 	    return false;
 	}
-	if (closed[x][y] != null || bakup.getRGB(x, y) != VALKEA)
+	if (closed[x][y] != null || image.getRGB(x, y) != VALKEA)
 	{
 	    return false;
 	}
@@ -116,11 +114,11 @@ public class ImagePanel extends JPanel implements MouseListener
 	starty = 0;
 	endx = 0;
 	endy = 0;
-	this.image.flush();
-	this.image = this.bakup;
-	this.bakup = this.bakup2;
+	//this.image.flush();
+	this.image = deepCopy(bakup);
+	//this.bakup = this.bakup2;
 
-	repaint();
+	//repaint();
     }
 
     public float crossHeuristic(Node current)
@@ -136,7 +134,9 @@ public class ImagePanel extends JPanel implements MouseListener
 
     private boolean closedContains(Node neighbour)
     {
-	if (closed[neighbour.getX()][neighbour.getY()] != null && closed[neighbour.getX()][neighbour.getY()].getX() == neighbour.getX() && closed[neighbour.getX()][neighbour.getY()].getY() == neighbour.getY())
+	if (	closed[neighbour.getX()][neighbour.getY()] != null && 
+		closed[neighbour.getX()][neighbour.getY()].getX() == neighbour.getX() && 
+		closed[neighbour.getX()][neighbour.getY()].getY() == neighbour.getY())
 	{
 	    return true;
 	}
@@ -174,7 +174,7 @@ public class ImagePanel extends JPanel implements MouseListener
 	}
 	endtime = System.currentTimeMillis();
 	repaint();
-	reset();
+	//reset();
     }
 
     public void astar()
@@ -269,6 +269,7 @@ public class ImagePanel extends JPanel implements MouseListener
     {
 	if (!startSet)
 	{
+	    reset();
 	    startx = ev.getX();
 	    starty = ev.getY();
 	    if (isValidCoord(startx, starty))
@@ -292,17 +293,27 @@ public class ImagePanel extends JPanel implements MouseListener
 	{
 	    startSet = false;
 	    endSet = false;
+	    
+	    // this.image = this.deepCopy(bakup);
 	    astar();
 	}
     }
 
+    private BufferedImage deepCopy(BufferedImage bi)
+    {
+	ColorModel cm = bi.getColorModel();
+	boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+	WritableRaster raster = bi.copyData(null);
+	return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     private boolean isValidCoord(int x, int y)
     {
-	if (x < 0 || x > bakup.getWidth() - 1)
+	if (x < 0 || x > image.getWidth() - 1)
 	{
 	    return false;
 	}
-	if (y < 0 || y > bakup.getHeight() - 1)
+	if (y < 0 || y > image.getHeight() - 1)
 	{
 	    return false;
 	}
